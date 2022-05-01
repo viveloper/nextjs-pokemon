@@ -1,17 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 import axios from 'axios';
-import type { GetServerSideProps, NextPage } from 'next';
+import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import styles from '../styles/Home.module.css';
 
-interface Pokemon {
+export interface Pokemon {
   id: number;
   name: string;
   image: string;
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getStaticProps: GetStaticProps = async () => {
   const { data } = await axios.get<Pokemon[]>(
     'https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json'
   );

@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 import axios from 'axios';
-import { GetServerSideProps, NextPage } from 'next';
+import { GetStaticPaths, GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { Pokemon } from '..';
 import styles from '../../styles/Details.module.css';
 
 enum PokemonType {
@@ -20,7 +21,20 @@ interface PokemonDetails {
   image: string;
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+export const getStaticPaths: GetStaticPaths = async () => {
+  const { data: pokemonList } = await axios.get<Pokemon[]>(
+    'https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json'
+  );
+
+  return {
+    paths: pokemonList.map((pokemon) => ({
+      params: { id: pokemon.id.toString() },
+    })),
+    fallback: false,
+  };
+};
+
+export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { data } = await axios.get<PokemonDetails>(
     `https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${params?.id}.json`
   );
