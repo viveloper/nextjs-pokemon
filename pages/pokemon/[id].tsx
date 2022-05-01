@@ -1,10 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import axios from 'axios';
-import { NextPage } from 'next';
+import { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 import styles from '../../styles/Details.module.css';
 
 enum PokemonType {
@@ -22,29 +20,22 @@ interface PokemonDetails {
   image: string;
 }
 
-const Details: NextPage = () => {
-  const {
-    query: { id },
-  } = useRouter();
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
+  const { data } = await axios.get<PokemonDetails>(
+    `https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${params?.id}.json`
+  );
+  return {
+    props: {
+      pokemon: data,
+    },
+  };
+};
 
-  const [pokemon, setPokemon] = useState<PokemonDetails>();
+interface Props {
+  pokemon: PokemonDetails;
+}
 
-  useEffect(() => {
-    const getPokemon = async () => {
-      const { data } = await axios.get<PokemonDetails>(
-        `https://jherr-pokemon.s3.us-west-1.amazonaws.com/pokemon/${id}.json`
-      );
-      setPokemon(data);
-    };
-    if (id) {
-      getPokemon();
-    }
-  }, [id]);
-
-  if (!pokemon) {
-    return null;
-  }
-
+const Details: NextPage<Props> = ({ pokemon }) => {
   return (
     <div>
       <Head>

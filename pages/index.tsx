@@ -1,9 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import axios from 'axios';
-import type { NextPage } from 'next';
+import type { GetServerSideProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import styles from '../styles/Home.module.css';
 
 interface Pokemon {
@@ -12,19 +11,22 @@ interface Pokemon {
   image: string;
 }
 
-const Home: NextPage = () => {
-  const [pokemonList, setPokemonList] = useState<Pokemon[]>([]);
+export const getServerSideProps: GetServerSideProps = async () => {
+  const { data } = await axios.get<Pokemon[]>(
+    'https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json'
+  );
+  return {
+    props: {
+      pokemonList: data,
+    },
+  };
+};
 
-  useEffect(() => {
-    const getPokemonList = async () => {
-      const { data } = await axios.get<Pokemon[]>(
-        'https://jherr-pokemon.s3.us-west-1.amazonaws.com/index.json'
-      );
-      setPokemonList(data);
-    };
-    getPokemonList();
-  }, []);
+interface Props {
+  pokemonList: Pokemon[];
+}
 
+const Home: NextPage<Props> = ({ pokemonList }) => {
   return (
     <div className={styles.container}>
       <Head>
